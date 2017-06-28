@@ -11,6 +11,9 @@
       #messageArea {
         display: none;
       }
+      #users{
+        list-style-type: none;
+      }
     </style>
   </head>
   <body>
@@ -57,10 +60,11 @@
   const submitUser = document.getElementById('submitUser')
   const userName = document.getElementById('userName')
   const usersList = document.getElementById('users')
+  let selectedUser = ''
 
   submitMsg.onclick = e => {
     e.preventDefault()
-    socket.emit('send message', message.value)
+    socket.emit('send message', message.value, selectedUser)
     message.value = ''
   }
   socket.on('new message', message => {
@@ -84,10 +88,16 @@
     usersList.innerHTML = ''
     users.map( user => {
       const userName = document.createElement('li')
-      userName.innerHTML = user
+      userName.innerHTML = `<span>${user.name}</span>`
+      userName.id = user.name
       userName.classname = 'list-group-item'
       usersList.appendChild(userName)
+      userName.onclick = e => {
+        e.preventDefault()
+        selectedUser = userName.id
+      }
     })
   })
+
   </script>
 </html>

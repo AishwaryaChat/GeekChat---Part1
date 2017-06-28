@@ -21,8 +21,14 @@ io.sockets.on('connection', socket => {
 
   // Disconnect
   socket.on('disconnect', data => {
+    let i = 0
     if (socket.username !== undefined) {
-      users.splice(users.indexOf(socket.username), 1)
+      users.map(user => {
+        if (user.name === socket.username) {
+          users.splice(i, 1)
+        }
+        i++
+      })
       updateUsernames()
     }
     connections.splice(connections.indexOf(socket), 1)
@@ -30,17 +36,31 @@ io.sockets.on('connection', socket => {
   })
 
   // Send Message
-  socket.on('send message', data => {
-    console.log(data)
-    io.sockets.emit('new message', {msg: data, user: socket.username})
+  socket.on('send message', (data, selectedUser) => {
+    let selectedUserID = ''
+    users.map(user => {
+      if (user.name === selectedUser) {
+        selectedUserID = user.id
+      }
+    })
+    io.sockets.in(selectedUserID).emit('new message', {msg: data, user: socket.username})
+    io.sockets.in(socket.id).emit('new message', {msg: data, user: socket.username})
   })
 
   // New users
-  socket.on('new user', (username, cb) => {
-    cb(true)
-    socket.username = username
-    users.push(socket.username)
-    updateUsernames()
+  socket.on('new user', (userName, cb) => {
+    let fusers = users.filter(user => user.name === userName)
+    if (fusers[0]) {
+      cb(false)
+    } else {
+      cb(true)
+      socket.username = userName
+      users.push({
+        id: socket.id,
+        name: socket.username
+      })
+      updateUsernames()
+    }
   })
 
   const updateUsernames = () => {

@@ -31,6 +31,7 @@
       <div class='row' id='messageArea'>
         <div class='col-md-4'>
           <div class='well'>
+            <h4 id='user'></h4>
             <h3>Online users</h3>
             <ul class='list-group' id='users'></ul>
           </div>
@@ -60,6 +61,7 @@
   const submitUser = document.getElementById('submitUser')
   const userName = document.getElementById('userName')
   const usersList = document.getElementById('users')
+
   let selectedUser = ''
 
   submitMsg.onclick = e => {
@@ -79,9 +81,11 @@
       if (data) {
         userArea.style.display = 'none'
         messageArea.style.display = 'block'
+        const user = document.getElementById('user')
+        user.innerHTML = userName.value
+        userName.value = ''
       }
     })
-    userName.value = ''
   }
 
   socket.on('get users', users => {

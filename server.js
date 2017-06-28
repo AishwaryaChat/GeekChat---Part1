@@ -41,10 +41,16 @@ io.sockets.on('connection', socket => {
     users.map(user => {
       if (user.name === selectedUser) {
         selectedUserID = user.id
+        user['msgs'].push({name: socket.username, text: data})
+      }
+      if (user.name === socket.username) {
+        user['msgs'].push({name: socket.username, text: data})
       }
     })
-    io.sockets.in(selectedUserID).emit('new message', {msg: data, user: socket.username})
     io.sockets.in(socket.id).emit('new message', {msg: data, user: socket.username})
+    if (selectedUserID !== '') {
+      io.sockets.in(selectedUserID).emit('new message', {msg: data, user: socket.username})
+    }
   })
 
   // New users
@@ -57,10 +63,20 @@ io.sockets.on('connection', socket => {
       socket.username = userName
       users.push({
         id: socket.id,
-        name: socket.username
+        name: socket.username,
+        msgs: []
       })
       updateUsernames()
     }
+  })
+
+  // user selected
+  socket.on('user selected', user => {
+    users.map(u => {
+      if (u.name === user) {
+        io.sockets.in(socket.id).emit('send history', u['msgs'])
+      }
+    })
   })
 
   const updateUsernames = () => {

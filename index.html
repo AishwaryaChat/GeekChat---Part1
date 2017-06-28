@@ -8,10 +8,10 @@
       body {
         margin-top: 30px;
       }
-      #messageArea {
+      #messageArea, #chat-area {
         display: none;
       }
-      #users{
+      #users {
         list-style-type: none;
       }
     </style>
@@ -54,8 +54,8 @@
   <script>
   const socket = io.connect()
   const message = document.getElementById('message')
-  const chatArea = document.getElementById('chat-area')
   const submitMsg = document.getElementById('submitMsg')
+  let chatArea = document.getElementById('chat-area')
   const userArea = document.getElementById('userArea')
   const messageArea = document.getElementById('messageArea')
   const submitUser = document.getElementById('submitUser')
@@ -99,8 +99,19 @@
       userName.onclick = e => {
         e.preventDefault()
         selectedUser = userName.id
+        socket.emit('user selected', selectedUser)
       }
     })
+  })
+
+  socket.on('send history', msgs => {
+    chatArea.innerHTML = ''
+    msgs.map(msg => {
+      let message = document.createElement('p')
+      message.innerHTML = `<strong>${msg.name}: </strong>` + msg.text
+      chatArea.appendChild(message)
+    })
+    chatArea.style.display = 'block'
   })
 
   </script>

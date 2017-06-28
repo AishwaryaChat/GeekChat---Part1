@@ -21,7 +21,29 @@ io.sockets.on('connection', socket => {
 
   // Disconnect
   socket.on('disconnect', data => {
+    if (socket.username !== undefined) {
+      users.splice(users.indexOf(socket.username), 1)
+      updateUsernames()
+    }
     connections.splice(connections.indexOf(socket), 1)
     console.log('Disconnected: %s sockets connected', connections.length)
   })
+
+  // Send Message
+  socket.on('send message', data => {
+    console.log(data)
+    io.sockets.emit('new message', {msg: data, user: socket.username})
+  })
+
+  // New users
+  socket.on('new user', (username, cb) => {
+    cb(true)
+    socket.username = username
+    users.push(socket.username)
+    updateUsernames()
+  })
+
+  const updateUsernames = () => {
+    io.sockets.emit('get users', users)
+  }
 })

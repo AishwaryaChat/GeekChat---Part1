@@ -64,6 +64,15 @@ io.sockets.on('connection', socket => {
   })
 
   const updateUsernames = () => {
-    io.sockets.emit('get users', users)
+    var i = 0
+    for (; i < users.length; i++) {
+      let onlineUserList = []
+      users.map(user => {
+        if (user.name !== users[i].name) {
+          onlineUserList.push(user)
+        }
+      })
+      io.sockets.in(users[i].id).emit('get users', onlineUserList)
+    }
   }
 })

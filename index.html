@@ -4,17 +4,7 @@
     <meta charset="utf-8">
     <title>IO Chat</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
-    <style>
-      body {
-        margin-top: 30px;
-      }
-      #messageArea, #chat-area {
-        display: none;
-      }
-      #users {
-        list-style-type: none;
-      }
-    </style>
+    <link rel="stylesheet" href="style.css" />
   </head>
   <body>
     <div class='container'>
@@ -37,8 +27,12 @@
           </div>
         </div>
         <div class='col-md-8'>
-          <div class='chat' id='chat'>
-            <div id='chat-area' class='well'></div>
+          <div class='chat well' id='chat'>
+            <div class='video-area'>
+              <video id='video'></video>
+            </div>
+            <button id='video-button'>video chat</button>
+            <div id='messages-area'></div>
             <div class='form-group'>
               <label>Enter Message</label>
               <textarea class='form-control' id='message'></textarea>
@@ -51,68 +45,5 @@
     </div>
   </body>
   <script src='/socket.io/socket.io.js' type='text/javascript'></script>
-  <script>
-  const socket = io.connect()
-  const message = document.getElementById('message')
-  const submitMsg = document.getElementById('submitMsg')
-  let chatArea = document.getElementById('chat-area')
-  const userArea = document.getElementById('userArea')
-  const messageArea = document.getElementById('messageArea')
-  const submitUser = document.getElementById('submitUser')
-  const userName = document.getElementById('userName')
-  const usersList = document.getElementById('users')
-
-  let selectedUser = ''
-
-  submitMsg.onclick = e => {
-    e.preventDefault()
-    socket.emit('send message', message.value, selectedUser)
-    message.value = ''
-  }
-  socket.on('new message', message => {
-    const ele = document.createElement('p')
-    ele.innerHTML = `<strong>${message.user}: </strong>` + message.msg
-    chatArea.appendChild(ele)
-  })
-
-  submitUser.onclick = e => {
-    e.preventDefault()
-    socket.emit('new user', userName.value, data => {
-      if (data) {
-        userArea.style.display = 'none'
-        messageArea.style.display = 'block'
-        const user = document.getElementById('user')
-        user.innerHTML = userName.value
-        userName.value = ''
-      }
-    })
-  }
-
-  socket.on('get users', users => {
-    usersList.innerHTML = ''
-    users.map( user => {
-      const userName = document.createElement('li')
-      userName.innerHTML = `<span>${user.name}</span>`
-      userName.id = user.name
-      userName.classname = 'list-group-item'
-      usersList.appendChild(userName)
-      userName.onclick = e => {
-        e.preventDefault()
-        selectedUser = userName.id
-        socket.emit('user selected', selectedUser)
-      }
-    })
-  })
-
-  socket.on('send history', msgs => {
-    chatArea.innerHTML = ''
-    msgs.map(msg => {
-      let message = document.createElement('p')
-      message.innerHTML = `<strong>${msg.name}: </strong>` + msg.text
-      chatArea.appendChild(message)
-    })
-    chatArea.style.display = 'block'
-  })
-
-  </script>
+  <script src='chat.js' type='text/javascript'></script>
 </html>

@@ -11,6 +11,8 @@ server.listen(process.env.PORT || 3000, () => {
   console.log('server running')
 })
 
+app.use(express.static(path.join(__dirname, 'public')))
+
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'))
 })
@@ -51,6 +53,7 @@ io.sockets.on('connection', socket => {
     if (selectedUserID !== '') {
       io.sockets.in(selectedUserID).emit('new message', {msg: data, user: socket.username})
     }
+    console.log('userssssssssssssss: ', users)
   })
 
   // New users
@@ -75,6 +78,16 @@ io.sockets.on('connection', socket => {
     users.map(u => {
       if (u.name === user) {
         io.sockets.in(socket.id).emit('send history', u['msgs'])
+      }
+    })
+  })
+
+  // video chat
+  socket.on('video chat', (URL, user) => {
+    console.log('userrrrrrrrrr', user, 'myURLllllllllll', URL)
+    users.map(u => {
+      if (u.name === user) {
+        io.sockets.in(u.id).emit('accept video', URL, socket.username)
       }
     })
   })
